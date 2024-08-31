@@ -1,0 +1,207 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+model Company {
+  id            String @id @default(cuid())
+  name          String @db.VarChar(200)
+  federalTaxId  String? @db.VarChar(12)
+  address1      String? @db.VarChar(200)
+  address2      String? @db.VarChar(200)
+  city          String? @db.VarChar(200)
+  state         String? @db.VarChar(2)
+  zip           String? @db.VarChar(10)
+  phone         String? @db.VarChar(15)
+  mobile        String? @db.VarChar(15)
+  fax           String? @db.VarChar(15)
+  email         String? @db.VarChar(200)
+  customers     Customer[]  @relation("Customers")  
+  resources     Resource[]  @relation("Resources")
+
+  createdAt     DateTime @default(now())
+}
+
+model Customer {
+  id            String @id @default(cuid())
+  company       Company @relation("Customers", fields: [companyId], references: [id])
+  companyId     String @db.VarChar(30)
+  name          String @db.VarChar(200)
+  displayName   String? @db.VarChar(20)
+  contact       String? @db.VarChar(200)
+  manager       String? @db.VarChar(200)
+  externalId    String? @db.VarChar(200)
+  federalTaxId  String? @db.VarChar(12)
+  address1      String? @db.VarChar(200)
+  address2      String? @db.VarChar(200)
+  city          String? @db.VarChar(200)
+  state         String? @db.VarChar(2)
+  zip           String? @db.VarChar(10)
+  phone         String? @db.VarChar(15)
+  mobile        String? @db.VarChar(15)
+  fax           String? @db.VarChar(15)
+  email         String? @db.VarChar(200)
+  projects      Project[] @relation("Projects")
+  invoices      Invoice[] @relation("Invoices")
+
+  createdAt     DateTime @default(now())
+}
+
+model Project {
+  id               String @id @default(cuid())
+  customer         Customer @relation("Projects", fields: [customerId], references: [id])
+  customerId       String @db.VarChar(30)
+  name             String @db.VarChar(200)
+  manager          String @db.VarChar(200)
+  email            String? @db.VarChar(200)
+  phone            String? @db.VarChar(15)
+  statementsOfWork StatementOfWork[] @relation("StatementOfWork")
+
+  createdAt     DateTime @default(now())
+}
+
+model Resource {
+  id              String @id @default(cuid())
+  company         Company @relation("Resources", fields: [companyId], references: [id])
+  companyId       String @db.VarChar(30)
+  name            String @db.VarChar(200)
+  federalTaxId    String? @db.VarChar(12)
+  address1        String? @db.VarChar(200)
+  address2        String? @db.VarChar(200)
+  city            String? @db.VarChar(200)
+  state           String? @db.VarChar(2)
+  zip             String? @db.VarChar(10)
+  phone           String? @db.VarChar(15)
+  mobile          String? @db.VarChar(15)
+  fax             String? @db.VarChar(15)
+  email           String? @db.VarChar(200)
+  sowResources    SOWResource[] @relation("SOWResources")
+  timesheets      Timesheet[] @relation("Timesheets")
+  invoiceDetails  InvoiceDetail[] @relation ("InvoiceDetails")
+
+  createdAt       DateTime @default(now())
+}
+
+model StatementOfWork {
+  id            String @id @default(cuid())
+  project       Project @relation("StatementOfWork", fields: [projectId], references: [id])
+  projectId     String  @db.VarChar(30)
+  name          String @db.VarChar(200)
+  fileLocation  String? @db.VarChar(500)
+  startDate     DateTime?
+  endDate       DateTime?
+  value         Decimal? @db.Money
+  active        Boolean @default(true)
+  sowResources  SOWResource[] @relation("SOWResources")
+  invoices      Invoice[] @relation("Invoices")
+  timesheets      Timesheet[] @relation("Timesheets")
+
+
+  createdAt     DateTime @default(now())
+}
+
+model ProjectRole {
+  id    String @id @default(cuid())
+  role  String @db.VarChar(200)
+  sowResources  SOWResource[] @relation("SOWResources")
+
+  createdAt     DateTime @default(now())
+}
+
+model SOWResource {
+  id              String @id @default(cuid())
+  statementOfWork StatementOfWork @relation ("SOWResources", fields: [sowId], references: [id])
+  sowId           String  @db.VarChar(30)
+  resource        Resource @relation ("SOWResources", fields: [resourceId], references: [id])
+  resourceId      String @db.VarChar(30)
+  projectRole     ProjectRole @relation("SOWResources", fields: [projectRoleId], references: [id] )
+  projectRoleId   String @db.VarChar(30)
+  active          Boolean @default(true)
+  billingRate     Decimal? @db.Money
+
+  createdAt     DateTime @default(now())
+}
+
+model Service {
+  id          String @id @default(cuid())
+  name        String @db.VarChar(200)
+  active      Boolean @default(true)
+  invoiceDetails  InvoiceDetail[] @relation ("InvoiceDetails")
+  timesheets      Timesheet[] @relation("Timesheets")
+
+  createdAt   DateTime @default(now())
+}
+
+model Invoice {
+  id                String @id @default(cuid())
+  statementOfWork   StatementOfWork @relation("Invoices", fields: [sowId], references: [id])  
+  sowId             String @db.VarChar(30)
+  customer          Customer @relation("Invoices", fields: [customerId], references: [id])
+  customerId        String
+  invoiceNo         String? @db.VarChar(30)
+  invoiceDate       DateTime @default(now())
+  invoiceDueDate    DateTime?
+  invoiceStatus     String   @db.VarChar(50)
+  poNumber          String?   @db.VarChar(50)
+  invoiceAmount     Decimal? @db.Money  
+  invoiceDetails    InvoiceDetail[] @relation ("InvoiceDetails")
+
+  createdAt     DateTime @default(now())
+}
+
+model InvoiceDetail {
+  id              String @id @default(cuid())
+  invoice         Invoice @relation("InvoiceDetails", fields: [invoiceId], references: [id])
+  invoiceId       String @db.VarChar(30)
+  service         Service @relation("InvoiceDetails", fields: [serviceId], references: [id])
+  serviceId       String @db.VarChar(30)
+  resource        Resource? @relation("InvoiceDetails", fields: [resourceId], references: [id])
+  resourceId      String? @db.VarChar(30)
+  unitAmount      Decimal? @db.Money
+  quantity        Decimal?
+  description     String?
+
+  createdAt       DateTime @default(now())
+}
+
+model ResourceStatus {
+  id                  String @id @default(cuid())
+  resourceId          String @db.VarChar(30)
+  supervisor          String @db.VarChar(30)
+  title               String @db.VarChar(100)
+  location            String @db.VarChar(30)
+  employmentStatus    String @db.VarChar(30)
+  currentBaseSalary   Decimal? @db.Money
+  dateOfTermination   DateTime @default(now())
+  eligibleForRehire   Boolean
+  hrContact           String
+
+  createdAt           DateTime @default(now())
+}
+
+model Timesheet {
+  id              String @id @default(cuid())
+  date            DateTime
+  email           String @db.VarChar(200)  
+  sowId           String @db.VarChar(30)
+  statementOfWork StatementOfWork @relation("Timesheets", fields: [sowId], references: [id])
+  resourceId      String @db.VarChar(30) 
+  resource        Resource @relation("Timesheets", fields: [resourceId], references: [id])
+  serviceId       String @db.VarChar(30)
+  service         Service @relation("Timesheets", fields: [serviceId], references: [id])
+  hours           Decimal   
+  description     String
+  billable        Boolean
+  status          String @db.VarChar(30)
+  approvedBy      String? @db.VarChar(30)
+  approvedDate    DateTime?
+
+  createdAt       DateTime @default(now())
+}

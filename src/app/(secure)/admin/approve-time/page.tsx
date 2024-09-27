@@ -44,7 +44,7 @@ export default function ApproveTime() {
       try{
         const curr = new Date(currentDate.toString()); // get current date
         const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week
-        const response =  await getTimeForApproval(resourceId, dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (dateMode == "Day" ? 0 : 6)))); // last day is the first day + 6
+        const response =  await getTimeForApproval(new Date().getTimezoneOffset(),resourceId, dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (dateMode == "Day" ? 0 : 6)))); // last day is the first day + 6
         setTimesheets(response);
         setTotalHours (response.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));     
       } catch(error) {

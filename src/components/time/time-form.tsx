@@ -26,7 +26,6 @@ interface TimeFormProps {
 }
 
 export default function TimeForm(props: TimeFormProps) {
-
     const [error, setError] = useState<string>('');
     const disabled: boolean = props.timesheet?.status!= "Added" && props.timesheet?.status != "Rejected";    
     const [billable, setBillable] = useState<boolean>(props.timesheet.billable?? true);
@@ -38,8 +37,8 @@ export default function TimeForm(props: TimeFormProps) {
     const getTimesheets = async() => {
         try{
             const curr = new Date(props.currentDate.toString()); // get current date
-            const first = curr.getDate() - curr.getDay() ; // First day is the day of the month - the day of the week
-            const response =  await fetchTime(props.resourceId ?? "", props.dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), props.dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (props.dateMode == "Day" ? 0 : 6)))); // last day is the first day + 6
+            const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week
+            const response =  await fetchTime(new Date().getTimezoneOffset(), props.resourceId ?? "", props.dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), props.dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (props.dateMode == "Day" ? 0 : 6)))); // last day is the first day + 6
             props.setTimesheets(response);
             props.setTotalHours (response.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));     
         } catch(error) {
@@ -56,19 +55,14 @@ export default function TimeForm(props: TimeFormProps) {
         }
     }
     return (
-        <form action={async (formData) => {  
+        <form action={async (formData) => {                            
             if(props.formType == "Add"){
-                
                 if(validateNumber(formData.get("hours") as string, setError) == "") {
-                        
                     await addTime(formData);                
                     getTimesheets();
-
-                
                 } 
             }
             else{
-              
                 const action = formData.get("action") as string;
                 if(action == "delete"){                    
                     await deleteTime(formData.get("id") as string);
@@ -84,18 +78,14 @@ export default function TimeForm(props: TimeFormProps) {
             }
         }} >
         {error && <div style={{ color: 'red' }}>{error}</div>}
-        <div className='md:flex'>   
+        <div className='md:flex'>            
             <Conditional showWhen={props.formType == "Edit"}>
                 <input type="hidden" name="id" value={props.timesheet.id} />
             </Conditional>
             <input type="hidden" name="email" value={props.timesheet.email} />
             <input type="hidden" name="resourceId" value={props.timesheet.resourceId} />
-            <>
-
-            </>
             <span className='mr-1 w-full md:w-44'>
-
-                <DatesSelect currentDate={props.currentDate} selectedDate={props.formType == "Add" ? new Date(props.timesheet.date).toDateString() : dateWithoutTimeZone(props.timesheet.date)} disabled={disabled} dateMode={props.dateMode} formType={props.formType}/>
+                <DatesSelect currentDate={props.currentDate} selectedDate={props.formType == "Add" ? new Date(props.timesheet.date).toDateString() : dateWithoutTimeZone(props.timesheet.date)} disabled={disabled} dateMode={props.dateMode}/>
             </span>
             <span className='mr-1 w-full md:w-56'>
                 <ProjectsSelect projects={props.projects} id={props.defaultProject}  disabled={disabled}/>

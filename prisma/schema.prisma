@@ -6,10 +6,10 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
+
 model Company {
   id            String @id @default(cuid())
   name          String @db.VarChar(200)
@@ -86,8 +86,16 @@ model Resource {
   timesheets      Timesheet[] @relation("Timesheets")
   invoiceDetails  InvoiceDetail[] @relation ("InvoiceDetails")
 
+  vocationLeaves                  Float
+  vocationLeavesConsumed           Float
+  vocationLeavesAvailable          Float
+  sickLeaves            Float
+  sickLeavesConsumed           Float
+  sickLeavesAvailable          Float
+  leaves            Leave[]  @relation("Leave")
   createdAt       DateTime @default(now())
-}
+  vocationLeaveNoticePeriod       Int
+  }
 
 model StatementOfWork {
   id            String @id @default(cuid())
@@ -204,4 +212,19 @@ model Timesheet {
   approvedDate    DateTime?
 
   createdAt       DateTime @default(now())
+}
+
+model Leave{
+id                        String @id @default(cuid())
+resourceId                String @db.VarChar(30)  
+resource                  Resource @relation("Leave", fields: [resourceId], references: [id])
+startTime                 DateTime
+endTime                   DateTime
+status                    String @db.VarChar(30)
+description               String
+duration                  Float
+createdAt       DateTime @default(now())
+startDatePartial             String
+endDatePartial               String
+leaveType                    String
 }

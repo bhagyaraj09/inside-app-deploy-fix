@@ -75,7 +75,7 @@ export const authOptions: NextAuthOptions = {
           id: token.id?token.id:"id",
           name: token.name,
           email: token.email,
-          roles: token.roles|| [], // Ensure roles are set
+          roles: token.roles || [], // Ensure roles are set
           picture: token.picture,
           initials: token.name?.split(' ').map(a => a[0]).join(''),
         };

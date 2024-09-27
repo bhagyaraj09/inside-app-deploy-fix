@@ -7,7 +7,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import Title from "@/components/ui/title"
-import Container from "@/src/components/ui/container"
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -40,8 +39,7 @@ export default function DashboardPage() {
   return (
     <>
       <Title title="Dashboard"></Title>
-      <Container>
-       <div className="flex-col flex px-5">
+      <div className="flex-col flex px-5">
         <div className="grid mb-4 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -171,8 +169,6 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
-      </Container>
-      
     </>
   )
 }

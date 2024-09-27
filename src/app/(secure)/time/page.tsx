@@ -31,7 +31,7 @@ export default function Time() {
     if(resource?.id){
       const curr = new Date(currentDate.toString()); // get current date
       const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week      
-      const response =  await submitTimeForApproval(resource?.id ?? "", dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (dateMode == "Day" ? 0 : 6))));
+      const response =  await submitTimeForApproval(new Date().getTimezoneOffset(), resource?.id ?? "", dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (dateMode == "Day" ? 0 : 6))));
       setTimesheets(response);
     }  
   }
@@ -76,7 +76,7 @@ export default function Time() {
       if(resource?.id){
         const curr = new Date(currentDate.toString()); // get current date        
         const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week        
-        const response =  await fetchTime(resource?.id ?? "", dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (dateMode == "Day" ? 0 : 6)))); // last day is the first day + 6
+        const response =  await fetchTime(new Date().getTimezoneOffset(), resource?.id ?? "", dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (dateMode == "Day" ? 0 : 6)))); // last day is the first day + 6
         setTimesheets(response); 
         setTotalHours (response.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));
       }
@@ -91,7 +91,7 @@ export default function Time() {
     dateMode == "Day" ? setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 1))) : setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
   }
   const handlePrev = () => {
-    dateMode == "Day" ? setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() -1))) : setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 7)));
+    dateMode == "Day" ? setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 1))) : setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 7)));
   }
   return (
     <>
@@ -129,13 +129,12 @@ export default function Time() {
                 <CardContent>                
                   <h2 className="text-lg font-medium py-3">Timesheet<i className="ml-2 fa-solid fa-table-cells text-sm"></i></h2>                
                   <TimeFormHeader />
-                  {timesheets.map((timesheet, index) =>
+                  {timesheets.map((timesheet, index) => 
                     <div key={timesheet.id} className="border-b-4 mb-4 pb-4 md:mb-1 md:pb-0 md:border-b-0">                      
                       <TimeForm key={timesheet.id} projects={projects} services={services} timesheet={timesheet} formType='Edit' 
                       defaultProject={timesheet.sowId} defaultService={timesheet.serviceId} currentDate={currentDate} 
                       setTimesheets={setTimesheets} resourceId={resource?.id ?? ""} dateMode={dateMode} setTotalHours={setTotalHours}/>
-                    </div> 
-                  
+                    </div>                    
                   )}
                   <div className="mt-5">
                     <div className="flex items-center">

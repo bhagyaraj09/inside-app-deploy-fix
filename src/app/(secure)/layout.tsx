@@ -23,7 +23,7 @@ export default async function RootLayout({
       </head>
       <body>
         <NextAuthProvider>
-          <div className="content md:flex md:max-h-screen">
+          <div className="content md:flex">
             <SideNav />
             <main className="w-full sm:flex-1 md:min-h-screen bg-[#fff]">
               <div className="flex justify-between pr-5 p-1 bg-[#f0f0f0]">

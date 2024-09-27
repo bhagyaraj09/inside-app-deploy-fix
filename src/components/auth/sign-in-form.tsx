@@ -15,8 +15,11 @@ export default function SignInForm() {
       password,
     });
     if (result?.error) {
+      console.log("file name  signin line 18",result.error)
       setError(result.error);
     } else {
+      console.log("file name  signin line 21 no error")
+
       // Redirect to the home page or other desired page
       window.location.href = "/";
     }

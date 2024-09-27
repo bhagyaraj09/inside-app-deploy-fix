@@ -91,13 +91,13 @@ export default function TimeReport() {
         const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week        
         if(tab == "Project"){
           if(sowId != ""){
-            const projectResponse =  await fetchTimeBySOWId(sowId, dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth(), 1) : new Date(curr.setDate(first)), dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth()+1, 0) : new Date(curr.setDate(first + 6))); // last day is the first day + 6
+            const projectResponse =  await fetchTimeBySOWId(new Date().getTimezoneOffset(),sowId, dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth(), 1) : new Date(curr.setDate(first)), dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth()+1, 0) : new Date(curr.setDate(first + 6))); // last day is the first day + 6
             setTimesheets(projectResponse); 
             setTotalHours (projectResponse.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));
           }
         } else if(tab == "Resource"){
           if(resourceId != ""){
-            const resourceResponse =  await fetchTimeByResourceId(resourceId, dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth(), 1) : new Date(curr.setDate(first)), dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth()+1, 0) : new Date(curr.setDate(first + 6))); // last day is the first day + 6
+            const resourceResponse =  await fetchTimeByResourceId(new Date().getTimezoneOffset(),resourceId, dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth(), 1) : new Date(curr.setDate(first)), dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth()+1, 0) : new Date(curr.setDate(first + 6))); // last day is the first day + 6
             setTimesheets(resourceResponse); 
             setTotalHours (resourceResponse.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));
           }

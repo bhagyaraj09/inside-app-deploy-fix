@@ -1,11 +1,9 @@
 import PoweredBy from "@/components/nav/powered-by"
 import SignInWithAzure from "@/components/auth/signin-with-azure"
-import SignInForm from "@/components/auth/sign-in-form"
-
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/utils/auth"
 import { redirect } from "next/navigation"
-
+import SignInForm from "@/src/components/auth/signin-in-form"
 
 export default async function signInPage() {
 
@@ -22,6 +20,7 @@ export default async function signInPage() {
                 Sign in to your account
             </h1>
             <SignInForm/>
+
             {/* <SignInWithAzure />  */}
         </div>
       </div>

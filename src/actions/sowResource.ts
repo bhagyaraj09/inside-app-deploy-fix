@@ -67,6 +67,9 @@ export async function getProjectsByResource(email: string) : Promise<SOWResource
             },   
             where: {
                 resource: { email: email },
+                statementOfWork: {
+                    active: true,
+                },
                 active: true,
             },
             orderBy: {

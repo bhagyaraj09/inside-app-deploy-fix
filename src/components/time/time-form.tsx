@@ -55,7 +55,15 @@ export default function TimeForm(props: TimeFormProps) {
         }
     }
     return (
-        <form action={async (formData) => {                            
+        <form 
+            onKeyDown={
+                (event: React.KeyboardEvent<HTMLFormElement>) => {
+                    if (event.key === 'Enter') {
+                    event.preventDefault(); // Prevents form submission
+                    }
+                }
+            }
+            action={async (formData) => {                            
             if(props.formType == "Add"){
                 if(validateNumber(formData.get("hours") as string, setError) == "") {
                     await addTime(formData);                

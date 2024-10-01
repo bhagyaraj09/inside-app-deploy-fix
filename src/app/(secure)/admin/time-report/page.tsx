@@ -2,7 +2,7 @@
 import Title from '@/components/ui/title';
 import Container from '@/components/ui/container';
 import { Button } from "@/components/ui/button";
-import { SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Timesheet, StatementOfWork, SOWResource, Resource } from '@/types';
 import { getAllSOWs } from '@/src/actions/sow';
 import { Card, CardContent,} from "@/components/ui/card";
@@ -16,6 +16,7 @@ import * as XLSX from "xlsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { getAllResources } from '@/src/actions/resource';
 import ResourcesSelect from '@/src/components/time/resources-select';
+import { startOfWeek, endOfWeek } from "date-fns"
 
 export default function TimeReport() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -33,17 +34,17 @@ export default function TimeReport() {
     setTab(value);
   }
   const handleExport = () => {
-    const ws = XLSX.utils.json_to_sheet(timesheets.map( timesheet => {
+    const ws = XLSX.utils.json_to_sheet(timesheets.map( ts => {
       return {
-        "Resource": timesheet.resource?.name,
-        "Project": timesheet.statementOfWork?.project?.name,
-        "SOW": timesheet.statementOfWork?.name,
-        "Date": timesheet.date,
-        "Hours": timesheet.hours,
-        "Service": timesheet.service?.name,
-        "Description": timesheet.description,
-        "Billable": timesheet.billable,
-        "Status": timesheet.status,
+        "Resource": ts.resource?.name,
+        "Project": ts.statementOfWork?.project?.name,
+        "SOW": ts.statementOfWork?.name,
+        "Date": ts.date,
+        "Hours": parseFloat(ts.hours),
+        "Service": ts.service?.name,
+        "Description": ts.description,
+        "Billable": ts.billable,
+        "Status": ts.status,
       }
     }));
     const wb = XLSX.utils.book_new();
@@ -58,7 +59,7 @@ export default function TimeReport() {
         setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
       }
     }else{
-       setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
+       setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));       
     }
   }
   const handlePrev = () => {
@@ -87,17 +88,20 @@ export default function TimeReport() {
   useEffect(() => {    
     const getTimesheets = async() => {
       try{
-        const curr = new Date(currentDate.toString()); // get current date        
-        const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week        
+        const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+        const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
+        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0);
+        
         if(tab == "Project"){
           if(sowId != ""){
-            const projectResponse =  await fetchTimeBySOWId(new Date().getTimezoneOffset(),sowId, dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth(), 1) : new Date(curr.setDate(first)), dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth()+1, 0) : new Date(curr.setDate(first + 6))); // last day is the first day + 6
+            const projectResponse =  await fetchTimeBySOWId(sowId, dateMode == "Month" ? monthStart : weekStart, dateMode == "Month" ? monthEnd : weekEnd); // last day is the first day + 6
             setTimesheets(projectResponse); 
             setTotalHours (projectResponse.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));
           }
         } else if(tab == "Resource"){
           if(resourceId != ""){
-            const resourceResponse =  await fetchTimeByResourceId(new Date().getTimezoneOffset(),resourceId, dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth(), 1) : new Date(curr.setDate(first)), dateMode == "Month" ? new Date(curr.getFullYear(), curr.getMonth()+1, 0) : new Date(curr.setDate(first + 6))); // last day is the first day + 6
+            const resourceResponse =  await fetchTimeByResourceId(resourceId, dateMode == "Month" ? monthStart : weekStart, dateMode == "Month" ? monthEnd : weekEnd); // last day is the first day + 6
             setTimesheets(resourceResponse); 
             setTotalHours (resourceResponse.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));
           }

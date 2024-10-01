@@ -6,10 +6,10 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
-
 model Company {
   id            String @id @default(cuid())
   name          String @db.VarChar(200)
@@ -85,17 +85,18 @@ model Resource {
   sowResources    SOWResource[] @relation("SOWResources")
   timesheets      Timesheet[] @relation("Timesheets")
   invoiceDetails  InvoiceDetail[] @relation ("InvoiceDetails")
-
-  vocationLeaves                  Float
+  reportingManager         String @db.VarChar(200)
+  vocationLeaves                  Float 
   vocationLeavesConsumed           Float
-  vocationLeavesAvailable          Float
-  sickLeaves            Float
+  vocationLeavesAvailable          Float 
+  sickLeaves            Float 
   sickLeavesConsumed           Float
-  sickLeavesAvailable          Float
+  sickLeavesAvailable          Float 
   leaves            Leave[]  @relation("Leave")
+  resetLeaveTime  DateTime    
   createdAt       DateTime @default(now())
   vocationLeaveNoticePeriod       Int
-  }
+}
 
 model StatementOfWork {
   id            String @id @default(cuid())
@@ -214,17 +215,51 @@ model Timesheet {
   createdAt       DateTime @default(now())
 }
 
+
+
+
 model Leave{
-id                        String @id @default(cuid())
+id                        String @id @default(cuid()) 
 resourceId                String @db.VarChar(30)  
 resource                  Resource @relation("Leave", fields: [resourceId], references: [id])
-startTime                 DateTime
+startTime                 DateTime 
 endTime                   DateTime
 status                    String @db.VarChar(30)
 description               String
 duration                  Float
 createdAt       DateTime @default(now())
-startDatePartial             String
+startDatePartial             String 
 endDatePartial               String
 leaveType                    String
+
+}
+
+model Holidays{
+id                        String @id @default(cuid()) 
+date        DateTime 
+title       String 
+description String?
+isActive    Boolean? @default(true)
+}
+
+model EventType {
+  id        String   @id @default(uuid())
+  typeName  String   @unique
+  events    Event[]  @relation("EventTypeEvents")
+}
+
+model Event {
+  id          String     @id @default(uuid())
+  eventName   String
+  description String
+  date        DateTime
+  startTime   String
+  endTime     String?
+  eventMode   String
+  eventTypeId         String     // Foreign key for EventType
+
+  eventType    EventType  @relation("EventTypeEvents", fields: [eventTypeId], references: [id])
+  isEventCancelled Boolean?
+
+
 }

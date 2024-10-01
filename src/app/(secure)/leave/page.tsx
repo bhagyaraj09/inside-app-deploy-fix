@@ -334,11 +334,11 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
               <div>
                 <p className="text-xs ml-4 mb-1 font-bold">Leaves Accured: {vocationLeaves} Hrs</p>
                 <p className="text-xs ml-4">
-                  <span className="w-1 h-1 bg-blue-900 text-blue-900 mr-1 text-xs mb-2">" "</span>
+                  <span className="w-1 h-1 bg-blue-900 text-blue-900 mr-1 text-xs mb-2">&quot; &quot;</span>
                   Consumed {vocationLeavesConsumed} Hrs
                 </p>
                 <p className="text-xs ml-4">
-                  <span className="w-1 h-1 bg-[#F0F0F2] text-[#F0F0F2] mr-1 text-xs">" "</span>
+                  <span className="w-1 h-1 bg-[#F0F0F2] text-[#F0F0F2] mr-1 text-xs">&quot; &quot;</span>
                   Available {vocationLeavesAvailable} Hrs
                 </p>
               </div>
@@ -348,11 +348,11 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
               <div>
                 <p className="text-xs ml-4 mb-1 font-bold">Total Leaves: {sickLeaves} Hrs</p>
                 <p className="text-xs ml-4">
-                  <span className="w-1 h-1 bg-blue-900 text-blue-900 mr-1 text-xs mb-2">" "</span>
+                  <span className="w-1 h-1 bg-blue-900 text-blue-900 mr-1 text-xs mb-2">&quot; &quot;</span>
                   Consumed {sickLeavesConsumed} Hrs
                 </p>
                 <p className="text-xs ml-4">
-                  <span className="w-1 h-1 bg-[#F0F0F2] text-[#F0F0F2] mr-1 text-xs">" "</span>
+                  <span className="w-1 h-1 bg-[#F0F0F2] text-[#F0F0F2] mr-1 text-xs">&quot; &quot;</span>
                   Available {sickLeavesAvailable} Hrs
                 </p>
               </div>

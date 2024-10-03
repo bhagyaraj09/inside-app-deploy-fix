@@ -36,7 +36,6 @@ const DatePicker: React.FC<DatePickerProps> = ({ onChange, date, type, minDate,b
     { dayOfWeek: [0, 6] }     // Disables Saturdays (6) and Sundays (0)
   ];  
   } 
-  console.log(disableDays)
 
   return (
     <Popover >

@@ -8,7 +8,6 @@ import Container from '@/components/ui/container';
 import { useSession } from 'next-auth/react';
 import { getLeavesByResourceId } from "@/actions/leave";
 import {getAllHolidaysDate} from "@/actions/event"
-import { LeaveHistoryType } from "@/types";
 
 // import {fetchAllResourcesNames} from "@/actions/resource"
 import {
@@ -36,6 +35,18 @@ import { AlertDialog } from "@/src/components/ui/alert-dialog";
 import { HolidaysProp } from "@/types";
 
 
+interface LeaveHistoryType {
+  id: string;
+  resourceId: string;
+  startTime: Date; // ISO 8601 string representation of the date and time
+  endTime: Date;   // ISO 8601 string representation of the date and time
+  status: string; // Status can be extended based on your needs
+  description: string;
+  duration:number;
+  leaveType: string;
+  startDatePartial:string;
+  endDatePartial:string // Type of leave (sick, vacation, etc.)
+}  
 
 
 
@@ -57,6 +68,7 @@ const [vocationLeaves, setVocationLeaves] = useState<number>(0);
   const [vocationLeaveNoticePeriod,setVocationLeaveNoticePeriod] =useState<number>(2)
   const [leavesHistory, setLeavesHistory] = useState<LeaveHistoryType[] | undefined>(undefined);
   const [durationInForm,setDurationInForm]=useState<number>(0)
+
   const dataVocation = {
     labels: ["leaves Consumed", "Leaves Available"],
     values: [vocationLeavesConsumed, vocationLeavesAvailable],
@@ -78,7 +90,6 @@ const [vocationLeaves, setVocationLeaves] = useState<number>(0);
   const handleLeaveTypeChange = (e:string) => {
     const minCausualLeaveDuration=new Date().getTime()+vocationLeaveNoticePeriod*24*60*60*1000
     if (e==="vocationLeave" && minCausualLeaveDuration>startDate.getTime()){
-      console.log("line92",minCausualLeaveDuration)
       if (new Date(minCausualLeaveDuration).getDay()!==6 && new Date(minCausualLeaveDuration).getDay()!==0){
         const minCausualLeaveDurationVal=minCausualLeaveDuration
         setStartDate(new Date(minCausualLeaveDurationVal))
@@ -122,9 +133,9 @@ const [vocationLeaves, setVocationLeaves] = useState<number>(0);
 
   const displayDuration = (duration: number): string => {
     if (duration > 8) {
-      return `${duration / 8} D`;
+      return `${duration / 8} Days`;
     } else if (duration===8){
-      return `${duration / 8} D`;
+      return `${duration / 8} Day`;
  
     }
     return `${duration} Hrs`;
@@ -172,6 +183,7 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
 }
 
   const handleLeaveRequestChange = (e: Date, actionType: string) => {
+    console.log("HHHHHHHHHHHH")
     if (actionType === "startDate") {
       
       if (endDate&&endDate.getTime()<e.getTime()){
@@ -183,7 +195,6 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
       else if (endDate){
        
         const durationVal = calculateDuration(e,endDate , startDatePartial, endDatePartial,holidays);
-      //  {console.log("******************",durationVal,startDatePartial,endDatePartial,startDate,endDate)}
         setDurationInForm(durationVal)
       }
       setStartDate(e);
@@ -210,9 +221,7 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
   const handleLeaveRequestSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (startDate && endDate && description !== "") {
-      console.log({startDate,endDate})
       const durationVal=calculateDuration(startDate,endDate,startDatePartial,endDatePartial,holidays)
-      console.log({durationVal})
       if (session && session.user && session.user.id){              
         await applyLeave(session.user.id, startDate, endDate, description,durationVal,startDatePartial,endDatePartial,leaveType);
         setDescription("")
@@ -221,7 +230,7 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
       try{
   const data = await fetchResourceById(session?.user.id);
         if (data) {
-          const { vocationLeaves, vocationLeavesAvailable, vocationLeavesConsumed, sickLeaves, sickLeavesConsumed, sickLeavesAvailable ,vocationLeaveNoticePeriod} = data;
+          const { vocationLeaves, vocationLeavesAvailable, vocationLeavesConsumed, sickLeaves, sickLeavesConsumed, sickLeavesAvailable,vocationLeaveNoticePeriod } = data;
           setVocationLeaves(vocationLeaves);
           setVocationLeavesAvailable(vocationLeavesAvailable);
           setVocationLeavesConsumed(vocationLeavesConsumed); // Fixing this to use vocationLeavesConsumed
@@ -246,13 +255,11 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
 
 
   
-        console.log("Added Successfully");
       } else{
         alert("Refresh Page")
       }
      
     } else {
-      // console.log(startDate && endDate && description !== ""&& endDate.getTime() - startDate.getTime() >= 0)
       if (startDate&&endDate){
         console.log(endDate.getTime() - startDate.getTime(), {startDate,endDate})
       }
@@ -263,12 +270,10 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log({session})
         if (session?.user.id){
 
         
-        const data = await fetchResourceById(session.user.id);
-        console.log("data ************************",data)
+        const data = await fetchResourceById(session?.user.id);
         if (data) {
           const { vocationLeaves, vocationLeavesAvailable,vocationLeaveNoticePeriod ,vocationLeavesConsumed, sickLeaves, sickLeavesConsumed, sickLeavesAvailable } = data;
           setVocationLeaves(vocationLeaves);
@@ -281,6 +286,7 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
                     setVocationLeaveNoticePeriod(vocationLeaveNoticePeriod)
 
 
+          console.log({ vocationLeaves, vocationLeavesAvailable, vocationLeavesConsumed, sickLeaves, sickLeavesConsumed, sickLeavesAvailable,vocationLeaveNoticePeriod } )
 
         }
        
@@ -299,8 +305,7 @@ const calculateMinForEndDate=(startDate:Date):Date=>{
 
     };
     fetchData();
-    console.log("BBBBBBBBBBBBBBBBBBBBB")
-  }, [session?.user.email]);
+  }, [session?.user.id]);
 
   useEffect(() => {
     const fetchHolidays = async () => {

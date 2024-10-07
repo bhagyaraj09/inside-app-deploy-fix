@@ -28,7 +28,10 @@ export default function SideNav() {
         data.push(LeavePolicyMenu);
     }  
     if(session?.user.roles.includes('EngagementManager')) {
-        data.push(PMMenu);
+        // data.push(PMMenu);
+        data.push(LeaveMenu); 
+        data.push(AdminMenu)
+
     }
     data.push(HRMenu);    
     data.push(EthicsMenu);

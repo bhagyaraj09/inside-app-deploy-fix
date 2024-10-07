@@ -54,7 +54,48 @@ export const authOptions: NextAuthOptions = {
             email: "test@example.com",
             roles: ["User", "Admin"] // Example roles
           };
-        }
+        } 
+        if (credentials?.email=="executive@example.com" &&
+          credentials?.password === "password"){
+            return {
+              id: "2",
+              name: "Test Executive",
+              email: "executive@example.com",
+              roles: ["User", "Executive"] // Example roles
+            };
+
+          } 
+          if (credentials?.email=="engagementmanager@example.com" &&
+            credentials?.password === "password"){
+              return {
+                id: "3",
+                name: "Test Engagement Manager",
+                email: "engagementmanager@example.com",
+                roles: ["User", "EngagementManager"] // Example roles
+              };
+  
+            }
+            if (credentials?.email=="projectmanager@example.com" &&
+              credentials?.password === "password"){
+                return {
+                  id: "4",
+                  name: "Test Project Manager",
+                  email: "projectmanager@example.com",
+                  roles: ["User", "ProjectManager"] // Example roles
+                };
+    
+              }
+              if (credentials?.email=="employee@example.com" &&
+                credentials?.password === "password"){
+                  return {
+                    id: "4",
+                    name: "Test Employee",
+                    email: "projectmanager@example.com",
+                    roles: ["User", "Employee"] // Example roles
+                  };
+      
+                }
+
         return null;
       }
     })

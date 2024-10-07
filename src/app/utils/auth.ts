@@ -88,11 +88,13 @@ export const authOptions: NextAuthOptions = {
               if (credentials?.email=="employee@example.com" &&
                 credentials?.password === "password"){
                   return {
-                    id: "4",
+                    id: "5",
                     name: "Test Employee",
                     email: "projectmanager@example.com",
                     roles: ["User", "Employee"] // Example roles
                   };
+
+
       
                 }
 
@@ -101,6 +103,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
+
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

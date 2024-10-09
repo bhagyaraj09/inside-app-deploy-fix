@@ -22,8 +22,7 @@
 //         roles: string[],
 //         picture: string | null | undefined
 //     }
-//   }
-
+//   } 
 
 
 import NextAuth from 'next-auth'
@@ -60,4 +59,5 @@ declare module 'next-auth/jwt' {
        
     }
   }
+
 

@@ -134,38 +134,3 @@ export type Company = {
   }   
     
   export type FormType = "Add" | "Edit";
-
-
-  export type FetchLeavesDataFromId={
-    vocationLeavesConsumed:number
-    vocationLeavesAvailable:number
-    vocationLeaves:number
-    sickLeaves:number
-          sickLeavesConsumed:number
-          sickLeavesAvailable:number
-          vocationLeaveNoticePeriod:number
-  }
-
-  export interface LeaveHistoryType {
-    id: string;
-    resourceId: string;
-    startTime: Date; // ISO 8601 string representation of the date and time
-    endTime: Date;   // ISO 8601 string representation of the date and time
-    status: string; // Status can be extended based on your needs
-    description: string;
-    duration:number;
-    leaveType: string;
-    startDatePartial:string;
-    endDatePartial:string // Type of leave (sick, vacation, etc.)
-  }  
-
-  export interface HolidaysType{
-    date: Date; 
-    eventName:string; 
-    description?:string|null; 
-}
-
-export interface HolidaysProp {
-  date: Date;
-
-}

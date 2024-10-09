@@ -14,6 +14,7 @@ import Title from '@/components/ui/title'
 import Container from '@/components/ui/container'
 import TimeForm from '@/src/components/time/time-form'
 import TimeFormHeader from "@/src/components/time/time-form-header"
+import { startOfWeek, endOfWeek } from "date-fns"
 
 export default function Time() {
   const { data: session, status } = useSession();
@@ -29,9 +30,9 @@ export default function Time() {
     
   const handleSubmitforApproval = async() => {
     if(resource?.id){
-      const curr = new Date(currentDate.toString()); // get current date
-      const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week      
-      const response =  await submitTimeForApproval(new Date().getTimezoneOffset(), resource?.id ?? "", dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (dateMode == "Day" ? 0 : 6))));
+      const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }).toDateString();
+      const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }).toDateString();      
+      const response =  await submitTimeForApproval(resource?.id ?? "", dateMode == "Day" ? currentDate.toDateString() : weekStart, dateMode == "Day" ? currentDate.toDateString() : weekEnd);
       setTimesheets(response);
     }  
   }
@@ -73,10 +74,11 @@ export default function Time() {
   useEffect(() => {    
   const getTimesheets = async() => {
     try{
+      const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }).toDateString();
+      console.log(weekStart)
+      const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }).toDateString();
       if(resource?.id){
-        const curr = new Date(currentDate.toString()); // get current date        
-        const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week        
-        const response =  await fetchTime(new Date().getTimezoneOffset(), resource?.id ?? "", dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (dateMode == "Day" ? 0 : 6)))); // last day is the first day + 6
+        const response =  await fetchTime(resource?.id ?? "", dateMode == "Day" ? currentDate.toDateString() : weekStart, dateMode == "Day" ? currentDate.toDateString() : weekEnd); // last day is the first day + 6
         setTimesheets(response); 
         setTotalHours (response.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));
       }
@@ -88,10 +90,10 @@ export default function Time() {
   }, [resource?.id, currentDate, dateMode]);
   var newTimesheet: Timesheet = { id: '', email:session?.user.email?? "",  date: new Date(), sowId: '', resourceId: resource?.id?? "", serviceId: '', hours: undefined, description: '', billable: true, status: 'Added' }   
   const handleNext = () => {    
-    dateMode == "Day" ? setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 1))) : setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + 7)));
+    setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() + (dateMode == "Day" ? 1 : 7))));
   }
   const handlePrev = () => {
-    dateMode == "Day" ? setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 1))) : setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - 7)));
+    setCurrentDate(new Date(currentDate.setDate(currentDate.getDate() - (dateMode == "Day" ? 1 : 7))));    
   }
   return (
     <>

@@ -88,10 +88,10 @@ export default function TimeReport() {
   useEffect(() => {    
     const getTimesheets = async() => {
       try{
-        const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-        const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 });
-        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0);
+        const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 }).toDateString();
+        const weekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }).toDateString();
+        const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toDateString();
+        const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth()+1, 0).toDateString();
         
         if(tab == "Project"){
           if(sowId != ""){

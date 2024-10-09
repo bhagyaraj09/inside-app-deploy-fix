@@ -11,6 +11,8 @@ import { FormType, SOWResource, Service, Timesheet } from '@/types';
 import { addTime, deleteTime, fetchTime, updateTime } from '@/src/actions/timeSheet';
 import Conditional from '@/components/custom/conditional'
 import { dateWithoutTimeZone } from '@/src/lib/utils'
+import { startOfWeek, endOfWeek } from "date-fns"
+
 interface TimeFormProps {
     projects: SOWResource[];
     services: Service[];
@@ -36,9 +38,9 @@ export default function TimeForm(props: TimeFormProps) {
 
     const getTimesheets = async() => {
         try{
-            const curr = new Date(props.currentDate.toString()); // get current date
-            const first = curr.getDate() - curr.getDay() + 1; // First day is the day of the month - the day of the week
-            const response =  await fetchTime(new Date().getTimezoneOffset(), props.resourceId ?? "", props.dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first)), props.dateMode == "Day" ? new Date(curr) : new Date(curr.setDate(first + (props.dateMode == "Day" ? 0 : 6)))); // last day is the first day + 6
+            const weekStart = startOfWeek(props.currentDate, { weekStartsOn: 1 }).toDateString();
+            const weekEnd = endOfWeek(props.currentDate, { weekStartsOn: 1 }).toDateString();
+            const response =  await fetchTime(props.resourceId ?? "", props.dateMode == "Day" ? props.currentDate.toDateString() : weekStart, props.dateMode == "Day" ? props.currentDate.toDateString() : weekEnd); 
             props.setTimesheets(response);
             props.setTotalHours (response.reduce((total, timesheet) => total + parseFloat(timesheet.hours?? 0), 0));     
         } catch(error) {
@@ -96,7 +98,7 @@ export default function TimeForm(props: TimeFormProps) {
                 <DatesSelect currentDate={props.currentDate} selectedDate={props.formType == "Add" ? new Date(props.timesheet.date).toDateString() : dateWithoutTimeZone(props.timesheet.date)} disabled={disabled} dateMode={props.dateMode}/>
             </span>
             <span className='mr-1 w-full md:w-56'>
-                <ProjectsSelect projects={props.projects} id={props.defaultProject}  disabled={disabled}/>
+                <ProjectsSelect projects={props.projects} id={"project-select-" + props.timesheet.id}  defaultProject={props.defaultProject} disabled={disabled}/>
             </span>
             <span className='mr-1 w-full md:w-36'>
                 <ServicesSelect services={props.services} id={props.defaultService}  disabled={disabled}/>

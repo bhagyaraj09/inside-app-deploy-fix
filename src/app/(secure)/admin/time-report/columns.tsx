@@ -28,5 +28,8 @@ export const columns: ColumnDef<Timesheet>[] = [
     accessorKey: "billable",
     header: "Billable",
   },
-  
+  {
+    accessorKey: "status",
+    header: "Status",
+  },
 ]

@@ -3,12 +3,8 @@ import { revalidatePath } from "next/cache";
 import prisma from "../app/utils/db";
 import { Timesheet } from '@/types';
 
-export async function fetchTime(timezoneOffset: number, resourceId: string, startDate: Date, endDate: Date  ) : Promise<Timesheet[]> {
-    "use server";
-    let UTCStartDate = new Date(startDate.getTime() - timezoneOffset * 60000);
-    let UTCEndDate = new Date(endDate.getTime() - timezoneOffset * 60000);
-    UTCStartDate.setHours(0,0,0,0);
-    UTCEndDate.setHours(0,0,0,0);
+export async function fetchTime(resourceId: string, startDate: string, endDate: string ) : Promise<Timesheet[]> {
+    "use server";    
     const data = await prisma.timesheet.findMany ({
         select: {
             id: true,
@@ -26,9 +22,9 @@ export async function fetchTime(timezoneOffset: number, resourceId: string, star
         where: {
             resourceId: resourceId,
             date: {
-                gte: UTCStartDate,
-                lte: UTCEndDate
-            }
+                gte: new Date(startDate),
+                lte: new Date(endDate),
+            },
         },        
         orderBy: {
             date: "asc"            
@@ -38,10 +34,8 @@ export async function fetchTime(timezoneOffset: number, resourceId: string, star
     //Only plain objects can be passed to Client Components from Server Components. Decimal objects are not supported.
 }
 
-export async function fetchTimeBySOWId(sowId: string, startDate: Date, endDate: Date  ) : Promise<Timesheet[]> {
-    "use server";
-    startDate.setHours(0,0,0,0);
-    endDate.setHours(0,0,0,0);
+export async function fetchTimeBySOWId(sowId: string, startDate: string, endDate: string) : Promise<Timesheet[]> {
+    "use server";    
     const data = await prisma.timesheet.findMany ({
         select: {
             id: true,
@@ -83,8 +77,8 @@ export async function fetchTimeBySOWId(sowId: string, startDate: Date, endDate: 
         where: {
             sowId: sowId,
             date: {
-                gte: startDate,
-                lte: endDate
+                gte: new Date(startDate),
+                lte: new Date(endDate),
             }
         },        
         orderBy: [{
@@ -99,10 +93,8 @@ export async function fetchTimeBySOWId(sowId: string, startDate: Date, endDate: 
     //Only plain objects can be passed to Client Components from Server Components. Decimal objects are not supported.
 }
 
-export async function fetchTimeByResourceId(resourceId: string, startDate: Date, endDate: Date  ) : Promise<Timesheet[]> {
-    "use server";
-    startDate.setHours(0,0,0,0);
-    endDate.setHours(0,0,0,0);
+export async function fetchTimeByResourceId(resourceId: string, startDate: string, endDate: string  ) : Promise<Timesheet[]> {
+    "use server";    
     const data = await prisma.timesheet.findMany ({
         select: {
             id: true,
@@ -144,8 +136,8 @@ export async function fetchTimeByResourceId(resourceId: string, startDate: Date,
         where: {
             resourceId: resourceId,
             date: {
-                gte: startDate,
-                lte: endDate
+                gte: new Date(startDate),
+                lte: new Date(endDate),
             }
         },        
         orderBy: {
@@ -158,15 +150,14 @@ export async function fetchTimeByResourceId(resourceId: string, startDate: Date,
 
 export async function updateTime(formData: FormData){
     "use server";    
-    let timesheetDate = new Date(formData.get("date") as string);
-    timesheetDate.setHours(0,0,0,0);
+    let timesheetDate = new Date(formData.get("date") as string);    
     const data = await prisma.timesheet.update({
         data: {
             date: timesheetDate,
             email: formData.get("email") as string,
             statementOfWork: {
                 connect: {
-                    id: formData.get("sowId") as string,
+                    id: formData.get("project-select-" + formData.get("id") as string) as string,
                 }
             },            
             service: {
@@ -187,15 +178,14 @@ export async function updateTime(formData: FormData){
 
 export async function addTime(formData: FormData){
     "use server";
-    let timesheetDate = new Date(formData.get("date") as string);
-    timesheetDate.setHours(0,0,0,0);
+    let timesheetDate = new Date(formData.get("date") as string);    
     const data = await prisma.timesheet.create ({
         data: {
             date: timesheetDate,
             email: formData.get("email") as string,
             statementOfWork: {
                 connect: {
-                    id: formData.get("sowId") as string,
+                    id: formData.get("project-select-") as string,
                 }
             },
             resource: {
@@ -226,10 +216,8 @@ export async function deleteTime(id: string){
     });
     revalidatePath("/time");
 }
-export async function getTimeForApproval(resourceId: string, startDate: Date, endDate: Date  ) : Promise<Timesheet[]> {
-    "use server";    
-    startDate.setHours(0,0,0,0);
-    endDate.setHours(0,0,0,0);
+export async function getTimeForApproval(resourceId: string, startDate: string, endDate: string) : Promise<Timesheet[]> {
+    "use server";
     const data = await prisma.timesheet.findMany({
         select: {
             id: true,
@@ -252,14 +240,11 @@ export async function getTimeForApproval(resourceId: string, startDate: Date, en
         },    
         where: {
             date: {
-                gte: startDate,
-                lte: endDate
+                gte: new Date(startDate),
+                lte: new Date(endDate),
             },
             resourceId: resourceId,
-            OR: [
-                {status:  "Submitted"},
-                {status:"Approved"},       
-            ] 
+            status:  "Submitted",
         },
         orderBy: {
             date: "asc"            
@@ -267,20 +252,16 @@ export async function getTimeForApproval(resourceId: string, startDate: Date, en
     });
     return JSON.parse(JSON.stringify(data));
 }
-export async function submitTimeForApproval(timezoneOffset: number, resourceId: string, startDate: Date, endDate: Date  ) : Promise<Timesheet[]> {
-    "use server";
-    let UTCStartDate = new Date(startDate.getTime() - timezoneOffset * 60000);
-    let UTCEndDate = new Date(endDate.getTime() - timezoneOffset * 60000);
-    UTCStartDate.setHours(0,0,0,0);
-    UTCEndDate.setHours(0,0,0,0);        
+export async function submitTimeForApproval(resourceId: string, startDate: string, endDate: string) : Promise<Timesheet[]> {
+    "use server";       
     const data = await prisma.timesheet.updateMany({
         data: {
             status: "Submitted"
         },
         where: {
             date: {
-                gte: UTCStartDate,
-                lte: UTCEndDate
+                gte: new Date(startDate),
+                lte: new Date(endDate),
             },
             resourceId: resourceId,
             OR: [
@@ -297,5 +278,25 @@ export async function submitTimeForApproval(timezoneOffset: number, resourceId: 
             ]
         }
     });
-    return fetchTime(0, resourceId, UTCStartDate, UTCEndDate);
+    return fetchTime(resourceId, startDate, endDate);
+}
+export async function ApproveTime(resourceId: string, formData: FormData){
+    "use server"; 
+    formData.forEach(async (value, key) => {
+        if(key.startsWith("custom-select-")){            
+            const timesheetId = key.split("-")[2];            
+            console.log(timesheetId);
+            const data = await prisma.timesheet.update({
+                data: {
+                    sowId: formData.get("project-select-" + timesheetId) as string,
+                    status: "Approved",
+                    billable: Boolean(formData.get("billable-" + timesheetId)),
+                },
+                where: {
+                    id: timesheetId,
+                }
+            });
+        }
+    });
+    revalidatePath("/approve-time");
 }

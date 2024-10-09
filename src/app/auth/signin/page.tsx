@@ -19,9 +19,8 @@ export default async function signInPage() {
             <h1 className="text-xl font-medium leading-tight tracking-tight text-gray-900 ">
                 Sign in to your account
             </h1>
-            <SignInForm/>
-
             {/* <SignInWithAzure />  */}
+            <SignInForm/>
         </div>
       </div>
       <div className="powered-by ">
